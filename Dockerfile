@@ -78,13 +78,19 @@ CMD [ "/usr/bin/codium", "--no-sandbox", "--unity-launch" , "--verbose"]
 #  --build-arg USER_GID=$(stat -c "%g" .) \
 #  --file Dockerfile .
 
+# OBS: when using wayland, run "xhost +" first and "xhost -" after
+#      for more info see: https://unix.stackexchange.com/q/593411
+#      or "xhost +SI:localuser:$(id -un)" instead
+#      for more info see: https://unix.stackexchange.com/a/359244
+# xhost +SI:localuser:"$(id -un)"
+
 # Command to run vscodium
 # (https://www.py4u.net/discuss/1132959)
 #
-# docker run --rm \
-#  --env DISPLAY=$DISPLAY \
-#  --volume /tmp/.X11-unix:/tmp/.X11-unix \
-#  --tty --interactive \
+# docker run --tty --interactive \
+#  --env DISPLAY="${DISPLAY}" \
+#  --mount type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix \
+#  --mount type=bind,source="${HOME}"/VSCodiumProjects,target=/home/developer/VSCodiumProjects \
+#  --workdir /home/developer/VSCodiumProjects \
 #  --network host --ipc host \
-#  --volume $(pwd):/home/developer \
-#  --detach vscodium:latest
+#  --detach --rm vscodium:latest
